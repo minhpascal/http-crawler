@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask_script import Manager
+from manager import Manager
 
 API_LOGIN = ""
 API_PASSWD = ""
@@ -19,4 +19,4 @@ def fetch(limit=100, retreive_all=False):
 
 
 if __name__ == '__main__':
-    manager.run()
+    manager.main()

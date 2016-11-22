@@ -13,7 +13,6 @@ PyAggUpdater.callback
 """
 
 import time
-import conf
 import json
 import logging
 import feedparser
@@ -29,15 +28,18 @@ logger = logging.getLogger(__name__)
 logging.captureWarnings(True)
 API_ROOT = "api/v2.0/"
 
+NB_WORKER = 2
+PLATFORM_URL = "https://www.newspipe.org/"
+USER_AGENT = "http_crawler"
 
 class AbstractCrawler:
 
     def __init__(self, auth, pool=None, session=None):
         self.auth = auth
-        self.pool = pool or ThreadPoolExecutor(max_workers=conf.NB_WORKER)
+        self.pool = pool or ThreadPoolExecutor(max_workers=NB_WORKER)
         self.session = session or FuturesSession(executor=self.pool)
         self.session.verify = False
-        self.url = conf.PLATFORM_URL
+        self.url = PLATFORM_URL
 
     def query_pyagg(self, method, urn, data=None):
         """A wrapper for internal call, method should be ones you can find
@@ -51,7 +53,7 @@ class AbstractCrawler:
                       auth=self.auth, data=json.dumps(data,
                                                       default=default_handler),
                       headers={'Content-Type': 'application/json',
-                               'User-Agent': conf.USER_AGENT})
+                               'User-Agent': USER_AGENT})
 
     def wait(self, max_wait=300, checks=5, wait_for=2):
         checked, second_waited = 0, 0
@@ -216,7 +218,7 @@ class CrawlerScheduler(AbstractCrawler):
 
     def prepare_headers(self, feed):
         """For a known feed, will construct some header dictionnary"""
-        headers = {'User-Agent': conf.USER_AGENT}
+        headers = {'User-Agent': USER_AGENT}
         if feed.get('last_modified'):
             headers['If-Modified-Since'] = feed['last_modified']
         if feed.get('etag') and 'pyagg' not in feed['etag']:
